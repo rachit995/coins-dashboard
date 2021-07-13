@@ -11,28 +11,30 @@ export default function Home() {
   const direction = sort.substr(sort.length - 3);
   const reverse = direction === "DSC";
   const sortEntity = sort.substr(0, 3);
-  let coinsList = data.filter((d) =>
+  let coinsList = data.filter((d: any) =>
     d.coinName.toLowerCase().includes(searchText.toLowerCase())
   );
   if (sortEntity === "NAM") {
-    coinsList = coinsList.sort((a, b) => a.coinName.localeCompare(b.coinName));
+    coinsList = coinsList.sort((a: any, b: any) =>
+      a.coinName.localeCompare(b.coinName)
+    );
   }
   if (sortEntity === "PRI") {
-    coinsList = coinsList.sort((a, b) => {
+    coinsList = coinsList.sort((a: any, b: any) => {
       if (a.last_traded_price > b.last_traded_price) return -1;
       if (a.last_traded_price < b.last_traded_price) return 1;
       return 0;
     });
   }
   if (sortEntity === "VOL") {
-    coinsList = coinsList.sort((a, b) => {
+    coinsList = coinsList.sort((a: any, b: any) => {
       if (a.volume.volume > b.volume.volume) return -1;
       if (a.volume.volume < b.volume.volume) return 1;
       return 0;
     });
   }
   if (sortEntity === "PER") {
-    coinsList = coinsList.sort((a, b) => {
+    coinsList = coinsList.sort((a: any, b: any) => {
       if (a.percentageDiff > b.percentageDiff) return -1;
       if (a.percentageDiff < b.percentageDiff) return 1;
       return 0;
@@ -94,6 +96,13 @@ export default function Home() {
               last_traded_price,
               volume: { volume },
               percentageDiff,
+            }: {
+              coinId: string;
+              coinIcon: string;
+              coinName: string;
+              last_traded_price: string;
+              volume: { volume: string };
+              percentageDiff: string;
             }) => {
               return (
                 <tr key={coinId}>
