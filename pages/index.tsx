@@ -1,8 +1,11 @@
+import { Switch } from "@headlessui/react";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import {
   HiOutlineStar,
+  HiSearch,
   HiSortAscending,
   HiSortDescending,
   HiStar,
@@ -23,6 +26,7 @@ export default function Home() {
     persistFavorites = JSON.parse(localStorage.getItem("favorites") as string);
   }
 
+  const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<Number[]>(persistFavorites || []);
   let coinsList = data.filter((d: any) =>
     d.coinName.toLowerCase().includes(searchText.toLowerCase())
@@ -57,18 +61,51 @@ export default function Home() {
   const directionArrow = () => {
     return reverse ? <HiSortAscending /> : <HiSortDescending />;
   };
+  if (showFavorites) {
+    coinsList = coinsList.filter((coin: any) =>
+      favorites.includes(coin.coinId)
+    );
+  }
   return (
     <>
       <Head>
         <title>Coins List</title>
       </Head>
       <section className="text-gray-600 body-font">
-        <div className="container py-24 mx-auto md:px-5">
-          <input
-            type="search"
-            onChange={(e) => setSearchText(e.target.value)}
-            value={searchText}
-          />
+        <div className="container pt-4 pb-8 mx-auto md:px-5">
+          <div className="w-full my-4 sm:inline-flex sm:justify-between">
+            <div className="relative mx-4 sm:mx-0">
+              <input
+                type="search"
+                placeholder="Search coin"
+                autoComplete="search"
+                name="search"
+                onChange={(e) => setSearchText(e.target.value)}
+                value={searchText}
+                className="w-full py-2 pl-10 pr-2 border rounded-lg outline-none sm:w-auto"
+              />
+              <div className="absolute top-0 flex items-center h-full left-3">
+                <HiSearch className="text-xl text-gray-300 " />
+              </div>
+            </div>
+            <div className="inline-flex items-center mx-6 mt-4 space-x-4 sm:mx-0 ">
+              <label className="text-sm">Show Favorites</label>
+              <Switch
+                checked={showFavorites}
+                onChange={setShowFavorites}
+                className={`${
+                  showFavorites ? "bg-yellow-400" : "bg-gray-200"
+                } relative inline-flex items-center h-6 rounded-full w-11 transition duration-150`}
+              >
+                <span className="sr-only">Enable notifications</span>
+                <span
+                  className={`${
+                    showFavorites ? "translate-x-6" : "translate-x-1"
+                  } inline-block w-4 h-4 transform bg-white rounded-full transition duration-150`}
+                />
+              </Switch>
+            </div>
+          </div>
           <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
               <div className="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
@@ -135,130 +172,142 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {coinsList.map(
-                      ({
-                        coinId,
-                        coinIcon,
-                        coinName,
-                        last_traded_price,
-                        volume: { volume },
-                        percentageDiff,
-                      }: {
-                        coinId: number;
-                        coinIcon: string;
-                        coinName: string;
-                        last_traded_price: number;
-                        volume: { volume: number };
-                        percentageDiff: number;
-                      }) => {
-                        const coinCode = coinIcon
-                          .substring(
-                            coinIcon.lastIndexOf("/") + 1,
-                            coinIcon.lastIndexOf(".")
-                          )
-                          .toUpperCase();
-                        return (
-                          <tr key={coinId} className="hover:bg-gray-100">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">
-                                {coinId + 1}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <button
-                                onClick={async () => {
-                                  let temp: Number[] = [];
-                                  if (favorites.includes(coinId)) {
-                                    temp = favorites.filter(
-                                      (el) => el !== coinId
+                    {coinsList.length ? (
+                      coinsList.map(
+                        ({
+                          coinId,
+                          coinIcon,
+                          coinName,
+                          last_traded_price,
+                          volume: { volume },
+                          percentageDiff,
+                        }: {
+                          coinId: number;
+                          coinIcon: string;
+                          coinName: string;
+                          last_traded_price: number;
+                          volume: { volume: number };
+                          percentageDiff: number;
+                        }) => {
+                          const coinCode = coinIcon
+                            .substring(
+                              coinIcon.lastIndexOf("/") + 1,
+                              coinIcon.lastIndexOf(".")
+                            )
+                            .toUpperCase();
+                          return (
+                            <tr key={coinId} className="hover:bg-gray-100">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-500">
+                                  {coinId + 1}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <button
+                                  onClick={async () => {
+                                    let temp: Number[] = [];
+                                    if (favorites.includes(coinId)) {
+                                      temp = favorites.filter(
+                                        (el) => el !== coinId
+                                      );
+                                    } else {
+                                      temp = [...favorites, coinId];
+                                    }
+                                    localStorage.setItem(
+                                      "favorites",
+                                      JSON.stringify(temp)
                                     );
-                                  } else {
-                                    temp = [...favorites, coinId];
-                                  }
-                                  localStorage.setItem(
-                                    "favorites",
-                                    JSON.stringify(temp)
-                                  );
-                                  await setFavorites(temp);
-                                }}
-                              >
-                                {favorites.includes(coinId) ? (
-                                  <HiStar className="text-lg text-yellow-400 hover:text-gray-400" />
-                                ) : (
-                                  <HiOutlineStar className="text-lg text-gray-400 hover:text-yellow-400" />
-                                )}
-                              </button>
-                            </td>
-
-                            <td className="px-6 py-4 cursor-pointer whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div className="w-10 h-10">
-                                  <div className="relative w-8 h-8">
-                                    <Image
-                                      src={coinIcon}
-                                      alt={coinName}
-                                      layout="fill"
-                                      objectFit="cover"
-                                    />
+                                    await setFavorites(temp);
+                                  }}
+                                >
+                                  {favorites.includes(coinId) ? (
+                                    <HiStar className="text-lg text-yellow-400 hover:text-gray-400" />
+                                  ) : (
+                                    <HiOutlineStar className="text-lg text-gray-400 hover:text-yellow-400" />
+                                  )}
+                                </button>
+                              </td>
+                              <Link passHref href={`/coin/${coinId}`}>
+                                <td className="px-6 py-4 cursor-pointer whitespace-nowrap">
+                                  <div className="flex items-center">
+                                    <div className="w-10 h-10">
+                                      <div className="relative w-8 h-8">
+                                        <Image
+                                          src={coinIcon}
+                                          alt={coinName}
+                                          layout="fill"
+                                          objectFit="cover"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="ml-2">
+                                      <div className="text-sm font-medium text-gray-900">
+                                        {coinName}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        {coinCode}
+                                      </div>
+                                    </div>
                                   </div>
+                                </td>
+                              </Link>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {`${last_traded_price.toLocaleString(
+                                    "en-IN",
+                                    {
+                                      style: "currency",
+                                      currency: "INR",
+                                    }
+                                  )}`}
                                 </div>
-                                <div className="ml-2">
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {coinName}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    {coinCode}
-                                  </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {(volume * last_traded_price).toLocaleString(
+                                    "en-IN",
+                                    {
+                                      style: "currency",
+                                      currency: "INR",
+                                    }
+                                  )}
                                 </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
-                                {`${last_traded_price.toLocaleString("en-IN", {
-                                  style: "currency",
-                                  currency: "INR",
-                                })}`}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
-                                {(volume * last_traded_price).toLocaleString(
-                                  "en-IN",
-                                  {
-                                    style: "currency",
-                                    currency: "INR",
-                                  }
-                                )}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {volume}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div
-                                className={`inline-flex items-center font-semibold text-sm text-gray-900 ${
-                                  percentageDiff > 0
-                                    ? "text-green-500"
-                                    : "text-red-500"
-                                }`}
-                              >
-                                {percentageDiff > 0 ? (
-                                  <MdArrowDropUp className="text-lg" />
-                                ) : (
-                                  <MdArrowDropDown className="text-lg" />
-                                )}
-                                {Math.abs(percentageDiff).toLocaleString(
-                                  undefined,
-                                  {
-                                    style: "percent",
-                                    minimumFractionDigits: 2,
-                                  }
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      }
+                                <div className="text-sm text-gray-500">
+                                  {volume}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div
+                                  className={`inline-flex items-center font-semibold text-sm text-gray-900 ${
+                                    percentageDiff > 0
+                                      ? "text-green-500"
+                                      : "text-red-500"
+                                  }`}
+                                >
+                                  {percentageDiff > 0 ? (
+                                    <MdArrowDropUp className="text-lg" />
+                                  ) : (
+                                    <MdArrowDropDown className="text-lg" />
+                                  )}
+                                  {Math.abs(percentageDiff).toLocaleString(
+                                    undefined,
+                                    {
+                                      style: "percent",
+                                      minimumFractionDigits: 2,
+                                    }
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        }
+                      )
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-4 text-center">
+                          No coins
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
