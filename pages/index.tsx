@@ -17,7 +17,7 @@ import { SORT } from "../constants/constants";
 export default function Home() {
   const [searchText, setSearchText] = useState("");
   const { data = [] } = useSWR("/api/list-coins");
-  const [sort, setSort] = useState("");
+  const [sort, setSort] = useState(SORT.RANK_ASC);
   const direction = sort.substr(sort.length - 3);
   const reverse = direction === "DSC";
   const sortEntity = sort.substr(0, 3);
@@ -25,12 +25,20 @@ export default function Home() {
   if (typeof window !== "undefined") {
     persistFavorites = JSON.parse(localStorage.getItem("favorites") as string);
   }
-
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<Number[]>(persistFavorites || []);
-  let coinsList = data.filter((d: any) =>
-    d.coinName.toLowerCase().includes(searchText.toLowerCase())
+  let coinsList = data.filter(
+    (d: any) =>
+      d.coinName.toLowerCase().includes(searchText.toLowerCase()) ||
+      d.coinCode.toLowerCase().includes(searchText.toLowerCase())
   );
+  if (sortEntity === "RAN") {
+    coinsList = coinsList.sort((a: any, b: any) => {
+      if (a.coinId > b.coinId) return 1;
+      if (a.coinId < b.coinId) return -1;
+      return 0;
+    });
+  }
   if (sortEntity === "NAM") {
     coinsList = coinsList.sort((a: any, b: any) =>
       a.coinName.localeCompare(b.coinName)
@@ -114,9 +122,15 @@ export default function Home() {
                     <tr>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                        className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase cursor-pointer"
+                        onClick={() =>
+                          setSort(reverse ? SORT.RANK_ASC : SORT.RANK_DESC)
+                        }
                       >
-                        #
+                        <div className="inline-flex items-center space-x-2">
+                          <span>#</span>
+                          {sortEntity === "RAN" && directionArrow()}
+                        </div>
                       </th>
                       <th></th>
                       <th
@@ -181,6 +195,7 @@ export default function Home() {
                           last_traded_price,
                           volume: { volume },
                           percentageDiff,
+                          coinCode,
                         }: {
                           coinId: number;
                           coinIcon: string;
@@ -188,13 +203,8 @@ export default function Home() {
                           last_traded_price: number;
                           volume: { volume: number };
                           percentageDiff: number;
+                          coinCode: string;
                         }) => {
-                          const coinCode = coinIcon
-                            .substring(
-                              coinIcon.lastIndexOf("/") + 1,
-                              coinIcon.lastIndexOf(".")
-                            )
-                            .toUpperCase();
                           return (
                             <tr key={coinId} className="hover:bg-gray-100">
                               <td className="px-6 py-4 whitespace-nowrap">
@@ -229,18 +239,18 @@ export default function Home() {
                               </td>
                               <Link passHref href={`/coin/${coinId}`}>
                                 <td className="px-6 py-4 cursor-pointer whitespace-nowrap">
-                                  <div className="flex items-center">
-                                    <div className="w-10 h-10">
-                                      <div className="relative w-8 h-8">
-                                        <Image
-                                          src={coinIcon}
-                                          alt={coinName}
-                                          layout="fill"
-                                          objectFit="cover"
-                                        />
-                                      </div>
+                                  <div className="flex items-center space-x-4">
+                                    <div className="relative w-8 h-8 overflow-hidden rounded-full shadow">
+                                      <Image
+                                        src={coinIcon}
+                                        alt={coinName}
+                                        layout="fill"
+                                        objectFit="cover"
+                                        placeholder="blur"
+                                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPs/w8AAiMBkMscdekAAAAASUVORK5CYII="
+                                      />
                                     </div>
-                                    <div className="ml-2">
+                                    <div className="">
                                       <div className="text-sm font-medium text-gray-900">
                                         {coinName}
                                       </div>

@@ -23,6 +23,12 @@ export default async function handler(
         ...d1,
         ...d2,
         percentageDiff: (d1.last_traded_price - d1.yes_price) / d1.yes_price,
+        coinCode: d2.coinIcon
+          .substring(
+            d2.coinIcon.lastIndexOf("/") + 1,
+            d2.coinIcon.lastIndexOf(".")
+          )
+          .toUpperCase(),
       });
     }
   }

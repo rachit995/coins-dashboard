@@ -1,4 +1,6 @@
 export enum SORT {
+  RANK_ASC = "RANASC",
+  RANK_DESC = "RANDSC",
   NAME_ASC = "NAMASC",
   NAME_DESC = "NAMDSC",
   VOLUME_ASC = "VOLASC",
