@@ -1,10 +1,6 @@
 import axios from "axios";
-import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<any[]>
-) {
+export const fetchData = async () => {
   const { data: volumeData } = await axios.get(
     "https://bitbns.com/order/getTickerWithVolume/"
   );
@@ -32,6 +28,5 @@ export default async function handler(
       });
     }
   }
-
-  res.status(200).json(data);
-}
+  return data;
+};

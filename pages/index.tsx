@@ -16,7 +16,7 @@ import { SORT } from "../constants/constants";
 
 export default function Home() {
   const [searchText, setSearchText] = useState("");
-  const { data = [] } = useSWR("/api/list-coins");
+  const { data = [] } = useSWR("/api/coins");
   const [sort, setSort] = useState(SORT.RANK_ASC);
   const direction = sort.substr(sort.length - 3);
   const reverse = direction === "DSC";
@@ -122,7 +122,7 @@ export default function Home() {
                     <tr>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase cursor-pointer"
+                        className="w-4 px-6 py-3 text-xs font-medium text-gray-500 uppercase cursor-pointer"
                         onClick={() =>
                           setSort(reverse ? SORT.RANK_ASC : SORT.RANK_DESC)
                         }
@@ -132,7 +132,7 @@ export default function Home() {
                           {sortEntity === "RAN" && directionArrow()}
                         </div>
                       </th>
-                      <th></th>
+                      <th className="w-4"></th>
                       <th
                         scope="col"
                         className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase cursor-pointer"
@@ -206,39 +206,43 @@ export default function Home() {
                           coinCode: string;
                         }) => {
                           return (
-                            <tr key={coinId} className="hover:bg-gray-100">
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-500">
-                                  {coinId + 1}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <button
-                                  onClick={async () => {
-                                    let temp: Number[] = [];
-                                    if (favorites.includes(coinId)) {
-                                      temp = favorites.filter(
-                                        (el) => el !== coinId
+                            <Link
+                              key={coinId}
+                              passHref
+                              href={`/coin/${coinCode.toLowerCase()}`}
+                            >
+                              <tr className="cursor-pointer hover:bg-gray-100">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-500">
+                                    {coinId + 1}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <button
+                                    onClick={async () => {
+                                      let temp: Number[] = [];
+                                      if (favorites.includes(coinId)) {
+                                        temp = favorites.filter(
+                                          (el) => el !== coinId
+                                        );
+                                      } else {
+                                        temp = [...favorites, coinId];
+                                      }
+                                      localStorage.setItem(
+                                        "favorites",
+                                        JSON.stringify(temp)
                                       );
-                                    } else {
-                                      temp = [...favorites, coinId];
-                                    }
-                                    localStorage.setItem(
-                                      "favorites",
-                                      JSON.stringify(temp)
-                                    );
-                                    await setFavorites(temp);
-                                  }}
-                                >
-                                  {favorites.includes(coinId) ? (
-                                    <HiStar className="text-lg text-yellow-400 hover:text-gray-400" />
-                                  ) : (
-                                    <HiOutlineStar className="text-lg text-gray-400 hover:text-yellow-400" />
-                                  )}
-                                </button>
-                              </td>
-                              <Link passHref href={`/coin/${coinId}`}>
-                                <td className="px-6 py-4 cursor-pointer whitespace-nowrap">
+                                      await setFavorites(temp);
+                                    }}
+                                  >
+                                    {favorites.includes(coinId) ? (
+                                      <HiStar className="text-lg text-yellow-400 hover:text-gray-400" />
+                                    ) : (
+                                      <HiOutlineStar className="text-lg text-gray-400 hover:text-yellow-400" />
+                                    )}
+                                  </button>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center space-x-4">
                                     <div className="relative w-8 h-8 overflow-hidden rounded-full shadow">
                                       <Image
@@ -260,55 +264,54 @@ export default function Home() {
                                     </div>
                                   </div>
                                 </td>
-                              </Link>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">
-                                  {`${last_traded_price.toLocaleString(
-                                    "en-IN",
-                                    {
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-900">
+                                    {`${last_traded_price.toLocaleString(
+                                      "en-IN",
+                                      {
+                                        style: "currency",
+                                        currency: "INR",
+                                      }
+                                    )}`}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-900">
+                                    {(
+                                      volume * last_traded_price
+                                    ).toLocaleString("en-IN", {
                                       style: "currency",
                                       currency: "INR",
-                                    }
-                                  )}`}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">
-                                  {(volume * last_traded_price).toLocaleString(
-                                    "en-IN",
-                                    {
-                                      style: "currency",
-                                      currency: "INR",
-                                    }
-                                  )}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {volume}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div
-                                  className={`inline-flex items-center font-semibold text-sm text-gray-900 ${
-                                    percentageDiff > 0
-                                      ? "text-green-500"
-                                      : "text-red-500"
-                                  }`}
-                                >
-                                  {percentageDiff > 0 ? (
-                                    <MdArrowDropUp className="text-lg" />
-                                  ) : (
-                                    <MdArrowDropDown className="text-lg" />
-                                  )}
-                                  {Math.abs(percentageDiff).toLocaleString(
-                                    undefined,
-                                    {
-                                      style: "percent",
-                                      minimumFractionDigits: 2,
-                                    }
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
+                                    })}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {volume}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div
+                                    className={`inline-flex items-center font-semibold text-sm text-gray-900 ${
+                                      percentageDiff > 0
+                                        ? "text-green-500"
+                                        : "text-red-500"
+                                    }`}
+                                  >
+                                    {percentageDiff > 0 ? (
+                                      <MdArrowDropUp className="text-lg" />
+                                    ) : (
+                                      <MdArrowDropDown className="text-lg" />
+                                    )}
+                                    {Math.abs(percentageDiff).toLocaleString(
+                                      undefined,
+                                      {
+                                        style: "percent",
+                                        minimumFractionDigits: 2,
+                                      }
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            </Link>
                           );
                         }
                       )
