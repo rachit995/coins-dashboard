@@ -22,8 +22,7 @@ export default async function handler(
       data.push({
         ...d1,
         ...d2,
-        percentageDiff:
-          ((d1.last_traded_price - d1.yes_price) / d1.yes_price) * 100,
+        percentageDiff: (d1.last_traded_price - d1.yes_price) / d1.yes_price,
       });
     }
   }
