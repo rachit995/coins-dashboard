@@ -3,14 +3,9 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  HiOutlineStar,
-  HiSearch,
-  HiSortAscending,
-  HiSortDescending,
-  HiStar,
-} from "react-icons/hi";
+import { HiSearch, HiSortAscending, HiSortDescending } from "react-icons/hi";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
+import { RiStarFill, RiStarLine } from "react-icons/ri";
 import useSWR from "swr";
 import { SORT } from "../constants/constants";
 
@@ -105,7 +100,7 @@ export default function Home() {
                   showFavorites ? "bg-yellow-400" : "bg-gray-200"
                 } relative inline-flex items-center h-6 rounded-full w-11 transition duration-150`}
               >
-                <span className="sr-only">Enable notifications</span>
+                <span className="sr-only">Show Favorites</span>
                 <span
                   className={`${
                     showFavorites ? "translate-x-6" : "translate-x-1"
@@ -206,42 +201,49 @@ export default function Home() {
                           coinCode: string;
                         }) => {
                           return (
-                            <Link
+                            <tr
                               key={coinId}
-                              passHref
-                              href={`/coin/${coinCode.toLowerCase()}`}
+                              className="cursor-pointer hover:bg-gray-100"
                             >
-                              <tr className="cursor-pointer hover:bg-gray-100">
+                              <Link
+                                passHref
+                                href={`/coin/${coinCode.toLowerCase()}`}
+                              >
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-500">
                                     {coinId + 1}
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <button
-                                    onClick={async () => {
-                                      let temp: Number[] = [];
-                                      if (favorites.includes(coinId)) {
-                                        temp = favorites.filter(
-                                          (el) => el !== coinId
-                                        );
-                                      } else {
-                                        temp = [...favorites, coinId];
-                                      }
-                                      localStorage.setItem(
-                                        "favorites",
-                                        JSON.stringify(temp)
+                              </Link>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <button
+                                  onClick={async () => {
+                                    let temp: Number[] = [];
+                                    if (favorites.includes(coinId)) {
+                                      temp = favorites.filter(
+                                        (el) => el !== coinId
                                       );
-                                      await setFavorites(temp);
-                                    }}
-                                  >
-                                    {favorites.includes(coinId) ? (
-                                      <HiStar className="text-lg text-yellow-400 hover:text-gray-400" />
-                                    ) : (
-                                      <HiOutlineStar className="text-lg text-gray-400 hover:text-yellow-400" />
-                                    )}
-                                  </button>
-                                </td>
+                                    } else {
+                                      temp = [...favorites, coinId];
+                                    }
+                                    localStorage.setItem(
+                                      "favorites",
+                                      JSON.stringify(temp)
+                                    );
+                                    await setFavorites(temp);
+                                  }}
+                                >
+                                  {favorites.includes(coinId) ? (
+                                    <RiStarFill className="text-lg text-yellow-400 hover:text-gray-400" />
+                                  ) : (
+                                    <RiStarLine className="text-lg text-gray-400 hover:text-yellow-400" />
+                                  )}
+                                </button>
+                              </td>
+                              <Link
+                                passHref
+                                href={`/coin/${coinCode.toLowerCase()}`}
+                              >
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center space-x-4">
                                     <div className="relative w-8 h-8 overflow-hidden rounded-full shadow">
@@ -264,6 +266,11 @@ export default function Home() {
                                     </div>
                                   </div>
                                 </td>
+                              </Link>
+                              <Link
+                                passHref
+                                href={`/coin/${coinCode.toLowerCase()}`}
+                              >
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-900">
                                     {`${last_traded_price.toLocaleString(
@@ -275,6 +282,11 @@ export default function Home() {
                                     )}`}
                                   </div>
                                 </td>
+                              </Link>
+                              <Link
+                                passHref
+                                href={`/coin/${coinCode.toLowerCase()}`}
+                              >
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-900">
                                     {(
@@ -288,6 +300,11 @@ export default function Home() {
                                     {volume}
                                   </div>
                                 </td>
+                              </Link>
+                              <Link
+                                passHref
+                                href={`/coin/${coinCode.toLowerCase()}`}
+                              >
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div
                                     className={`inline-flex items-center font-semibold text-sm text-gray-900 ${
@@ -310,8 +327,8 @@ export default function Home() {
                                     )}
                                   </div>
                                 </td>
-                              </tr>
-                            </Link>
+                              </Link>
+                            </tr>
                           );
                         }
                       )

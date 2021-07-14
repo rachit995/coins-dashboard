@@ -3,9 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { HiChevronRight, HiLink, HiOutlineStar, HiStar } from "react-icons/hi";
+import { HiChevronRight, HiLink } from "react-icons/hi";
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
-import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import {
+  RiMoneyDollarCircleLine,
+  RiStarFill,
+  RiStarLine,
+} from "react-icons/ri";
 import useSWR from "swr";
 
 const SingleCoin = () => {
@@ -102,9 +106,9 @@ const SingleCoin = () => {
                 }}
               >
                 {isFavorite ? (
-                  <HiStar className="text-lg" />
+                  <RiStarFill className="text-lg" />
                 ) : (
-                  <HiOutlineStar className="text-lg" />
+                  <RiStarLine className="text-lg" />
                 )}
               </button>
               <span className="px-2 py-1 text-sm font-semibold text-gray-500 bg-gray-100 rounded ">
